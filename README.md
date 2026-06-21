@@ -7,7 +7,7 @@
 - 画像アップロード機能も実装し、視覚的にアイテム管理できるようにしました。
 
 ## ③アプリのデプロイURL
-- https://marochanchan.github.io/kadai03_memo/
+- https://marochan.sakura.ne.jp/kadai06_php1/post.php
 
 ## ④アプリのログイン用IDまたはPassword（ある場合）
 - ID: 今回なし

@@ -1,7 +1,10 @@
 <?php
 
-$id = $_POST["id"];
+// funcs.phpを読み込む
+require_once("funcs.php");
 
+// POSTデータを取得
+$id = $_POST["id"];
 $item_name = $_POST["item_name"];
 $season = $_POST["season"];
 $category = $_POST["category"];
@@ -10,43 +13,46 @@ $purchase_date = $_POST["purchase_date"];
 $comment = $_POST["comment"];
 $image_name = $_POST["image_name"] ?? "";
 
-$c = ",";
+// DB接続
+$pdo = db_conn();
 
-$new_line = date("Y-m-d H:i:s");
-$new_line .= $c.$item_name;
-$new_line .= $c.$season;
-$new_line .= $c.$category;
-$new_line .= $c.$brand;
-$new_line .= $c.$purchase_date;
-$new_line .= $c.$comment;
-$new_line .= $c.$image_name;
-$new_line .= "\n";
+// 更新用SQL
+$sql = "UPDATE closet_table SET
+            item_name = :item_name,
+            season = :season,
+            category = :category,
+            brand = :brand,
+            purchase_date = :purchase_date,
+            comment = :comment,
+            image_name = :image_name
+        WHERE id = :id";
 
-$lines = file("data/data.txt");
+$stmt = $pdo->prepare($sql);
 
-$str = "";
+// フォームの値をSQLに渡す
+$stmt->bindValue(":id", $id, PDO::PARAM_INT);
+$stmt->bindValue(":item_name", $item_name);
+$stmt->bindValue(":season", $season);
+$stmt->bindValue(":category", $category);
+$stmt->bindValue(":brand", $brand);
+$stmt->bindValue(":purchase_date", $purchase_date);
+$stmt->bindValue(":comment", $comment);
+$stmt->bindValue(":image_name", $image_name);
 
-foreach ($lines as $key => $line) {
+// SQL実行
+$status = $stmt->execute();
 
-    if ($key == $id) {
+// エラー処理
+if($status == false){
 
-        $str .= $new_line;
+    sql_error($stmt);
 
-    } else {
+}else{
 
-        $str .= $line;
-
-    }
+    // 更新後は一覧画面へ戻る
+    header("Location: read.php");
+    exit();
 
 }
-
-$file = fopen("data/data.txt", "w");
-
-fwrite($file, $str);
-
-fclose($file);
-
-header("Location: read.php");
-exit();
 
 ?>

@@ -59,3 +59,31 @@ input[type="submit"] {
     color: #fff;
     cursor: pointer;
 }
+
+/* -------------------------
+カテゴリ別登録枚数
+------------------------- */
+
+.summary-card{
+    width: 320px;
+    margin: 20px auto;
+    padding: 20px;
+
+    background: #fff;
+
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+    text-align: center;
+}
+
+.summary-card h2{
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 20px;
+}
+
+.summary-card p{
+    margin: 10px 0;
+    font-size: 18px;
+}

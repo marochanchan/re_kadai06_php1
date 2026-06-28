@@ -1,28 +1,26 @@
 <?php
 
+// funcs.phpを読み込む
+require_once("funcs.php");
+
+// idを取得
 $id = $_GET["id"];
 
-$lines = file("data/data.txt");
+// DB接続
+$pdo = db_conn();
 
-$str = "";
+// 削除SQL
+$sql = "DELETE FROM closet_table WHERE id=:id";
+$stmt = $pdo->prepare($sql);
+$stmt->bindValue(":id", $id, PDO::PARAM_INT);
+$status = $stmt->execute();
 
-foreach ($lines as $key => $line) {
-
-    if ($key != $id) {
-
-        $str .= $line;
-
-    }
-
+// エラー処理
+if($status == false){
+    sql_error($stmt);
+}else{
+    header("Location: read.php");
+    exit();
 }
-
-$file = fopen("data/data.txt","w");
-
-fwrite($file, $str);
-
-fclose($file);
-
-header("Location: read.php");
-exit();
 
 ?>

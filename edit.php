@@ -86,6 +86,12 @@ $result = $stmt->fetch(PDO::FETCH_ASSOC);
     アウター
     </option>
 
+    <option value="シューズ"
+    <?php if($result["category"]=="シューズ") echo "selected"; ?>>
+    シューズ
+    </option>
+
+
     <option value="その他"
     <?php if($result["category"]=="その他") echo "selected"; ?>>
     その他

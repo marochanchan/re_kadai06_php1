@@ -5,6 +5,13 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div style="text-align:center;">
+    <a class="page-link" href="read.php">
+        ← クローゼット一覧へ
+    </a>
+</div>
+
 	<h1>クローゼット登録</h1>
 
 <div class="form-container">
@@ -25,6 +32,7 @@
         <option value="トップス">トップス</option>
         <option value="ボトムス">ボトムス</option>
         <option value="アウター">アウター</option>
+        <option value="シューズ">シューズ</option>
         <option value="その他">その他</option>
     </select><br><br>
 

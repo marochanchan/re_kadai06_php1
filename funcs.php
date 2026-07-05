@@ -13,9 +13,12 @@ function db_conn(){
     try{
 
         $pdo = new PDO(
-            'mysql:dbname=gs_db;charset=utf8mb4;host=localhost',
-            'root',
-            ''
+            // 'mysql:dbname=gs_db_kadai08;charset=utf8mb4;host=localhost',
+            // 'root',
+            // ''
+            'mysql:dbname=********;charset=utf8mb4;host=*********',
+            '*********',
+            '*********'
         );
 
         return $pdo;

@@ -15,9 +15,18 @@ require_once("funcs.php");
 //DB接続
 $pdo = db_conn();
 
-// 検索条件の受け取り。GETで送られてきた値を取得。空なら「全件表示」になる
+// ----------------------------
+// 検索条件を受け取る
+// season：シーズン検索
+// category：カテゴリボタン検索
+// sort：新しい順・古い順
+// ----------------------------
 $search_season = $_GET["season"] ?? "";
 $search_category = $_GET["category"] ?? "";
+$sort = $_GET["sort"] ?? "new";
+
+// お気に入りだけ表示するか
+$favorite = $_GET["favorite"] ?? "";
 
 // ----------------------------
 // カテゴリごとの登録枚数を取得
@@ -37,18 +46,37 @@ if($status == false){
     sql_error($stmt_count);
 }
 
-
-//一覧表示用のSQLを作る
+// ----------------------------
+// 一覧表示用SQL
+// WHERE 1=1 にしておくことで
+// 後からAND条件を追加しやすくしている
+// ----------------------------
 $sql = "SELECT * FROM closet_table WHERE 1=1";
 
-// シーズンが選ばれていたら条件を追加
+// シーズン検索が指定されたら条件追加
 if($search_season != ""){
     $sql .= " AND season = :season";
 }
 
-// カテゴリが選ばれていたら条件を追加
+// カテゴリボタンが押されたら条件追加
 if($search_category != ""){
     $sql .= " AND category = :category";
+}
+
+// お気に入りだけ表示
+if($favorite == "1"){
+    $sql .= " AND favorite = 1";
+}
+
+// ----------------------------
+// 表示順を変更
+// new：新しい順
+// old：古い順
+// ----------------------------
+if($sort == "old"){
+    $sql .= " ORDER BY id ASC";
+}else{
+    $sql .= " ORDER BY id DESC";
 }
 
 // SQLの準備
@@ -76,6 +104,12 @@ if($status==false){
 
 <h1>クローゼット一覧</h1>
 
+<div style="text-align:center;">
+    <a class="page-link" href="post.php">
+        ＋ 新しく登録する
+    </a>
+</div>
+
 <!-- 絞り込み検索機能、GETで条件をread.phpに送る -->
 <form method="GET" action="read.php">
 
@@ -95,63 +129,121 @@ if($status==false){
 </option>
 </select>
 
-カテゴリ
-<select name="category">
+<label>並び順</label>
 
-<option value=""
-<?php if($search_category=="") echo "selected"; ?>>
-指定なし
+<select name="sort">
+
+<option value="new"
+<?= $sort=="new" ? "selected" : "" ?>>
+新しい順
 </option>
 
-<option value="トップス"
-<?php if($search_category=="トップス") echo "selected"; ?>>
-トップス
+<option value="old"
+<?= $sort=="old" ? "selected" : "" ?>>
+古い順
 </option>
 
-<option value="ボトムス"
-<?php if($search_category=="ボトムス") echo "selected"; ?>>
-ボトムス
-</option>
-
-<option value="アウター"
-<?php if($search_category=="アウター") echo "selected"; ?>>
-アウター
-</option>
-
-<option value="その他"
-<?php if($search_category=="その他") echo "selected"; ?>>
-その他
-</option>
 </select>
 
-<input type="submit" value="検索">
+<input type="submit" value="検索する">
 
 </form>
 
-<!-- ==========================
-カテゴリ別登録枚数
-GROUP BYで集計した結果を表示
-========================== -->
+<div class="favorite-filter">
 
-<div class="summary-card">
+<a
+class="<?= $favorite=="" ? "active" : "" ?>"
+href="read.php?season=<?= h($search_season) ?>&category=<?= h($search_category) ?>&sort=<?= h($sort) ?>">
 
-<h2>📊 カテゴリ別登録枚数</h2>
+📋 すべて表示
+
+</a>
+
+<a
+class="<?= $favorite=="1" ? "active" : "" ?>"
+href="read.php?season=<?= h($search_season) ?>&category=<?= h($search_category) ?>&sort=<?= h($sort) ?>&favorite=1">
+
+❤️ お気に入りだけ
+
+</a>
+
+</div>
+
+<h2 class="category-title">
+カテゴリから探す
+</h2>
+
+
+<!-- カテゴリボタン -->
+<div class="category-buttons">
+
+<!-- 全件表示 -->
+<a href="read.php?season=<?= h($search_season) ?>&sort=<?= h($sort) ?>"
+class="<?= $search_category=="" ? "active" : "" ?>">
+
+<div class="category-icon">🧺</div>
+<div class="category-name">すべて</div>
+<div class="count">全件</div>
+
+</a>
 
 <?php
+// ----------------------------
+// GROUP BYで取得したカテゴリを
+// ボタンとして自動生成
+// カテゴリが増えてもボタンは自動で追加される
+// ----------------------------
 while($count = $stmt_count->fetch(PDO::FETCH_ASSOC)){
 ?>
 
-<p>
-<strong><?= h($count["category"]) ?></strong>
-：<?= h($count["cnt"]) ?>着
-</p>
+<a href="read.php?season=<?= h($search_season) ?>&category=<?= h($count["category"]) ?>&sort=<?= h($sort) ?>"
+class="<?= $search_category==$count["category"] ? "active" : "" ?>">
+
+<?php
+
+// カテゴリごとのアイコン設定
+// カテゴリが追加された場合は
+// 必要に応じてアイコンを追加する
+$icon = "";
+
+if($count["category"]=="トップス"){
+    $icon = "👕";
+}
+elseif($count["category"]=="ボトムス"){
+    $icon = "👖";
+}
+elseif($count["category"]=="アウター"){
+    $icon = "🧥";
+}
+elseif($count["category"]=="シューズ"){
+    $icon = "👟";
+}
+else{
+    $icon = "📦";
+}
+
+?>
+
+
+<div class="category-icon">
+    <?= $icon ?>
+</div>
+
+<div class="category-name">
+    <?= h($count["category"]) ?>
+</div>
+
+<div class="count">
+    <?= h($count["cnt"]) ?>着
+</div>
+
+</a>
 
 <?php
 }
 ?>
 
 </div>
-
 
 <div class="container">
 
@@ -165,15 +257,23 @@ while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
 <!-- カードの表示 -->
 <div class="card">
 
+<!-- お気に入りボタン -->
+<a class="favorite-btn"
+   href="favorite.php?id=<?= $result["id"] ?>">
+
+<?= $result["favorite"] ? "❤️" : "🤍" ?>
+
+</a>
+
 <!-- 画像表示 -->
 <?php if(!empty($result["image_name"])): ?>
 <img class="item_image"
      src="upload/<?= h($result["image_name"]) ?>">
 <?php endif; ?>
 
-    <h2 class="item_name">
-        <?= h($result["item_name"]) ?>
-    </h2>
+<h2 class="item_name">
+    <?= h($result["item_name"]) ?>
+</h2>
 
 <!-- 項目表示 -->
 <p>シーズン：<?= h($result["season"]) ?></p>
@@ -183,8 +283,20 @@ while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
 <p>コメント：<?= h($result["comment"]) ?></p>
 
 <!-- 編集・削除リンク（行番号で識別） -->
-<a href="edit.php?id=<?= $result["id"] ?>">編集</a>
-<a href="delete.php?id=<?= $result["id"] ?>">削除</a>
+<div class="card-buttons">
+
+    <a class="edit-btn"
+       href="edit.php?id=<?= $result["id"] ?>">
+        ✏️ 編集
+    </a>
+
+<a class="delete-btn"
+   href="delete.php?id=<?= $result["id"] ?>"
+   onclick="return confirm('本当に削除しますか？');">
+    🗑️ 削除
+</a>
+
+</div>
 
 </div>
 

@@ -9,7 +9,7 @@
 - ログイン機能・ユーザー管理機能を実装し、管理者と一般ユーザーで操作できる内容を変更しています。
 
 ## ③アプリのデプロイURL
-- https://marochan.sakura.ne.jp/kadai08_db2/post.php
+- https://marochan.sakura.ne.jp/kadai08_db2/login.php
 
 ## ④アプリのログイン用IDまたはPassword（ある場合）
 管理者

@@ -1,6 +1,14 @@
 <?php
 
+session_start();
+
 require_once("funcs.php");
+
+sschk();
+
+if($_SESSION["kanri_flg"] != 1){
+    exit("権限がありません");
+}
 
 $item_name = $_POST["item_name"];
 $season = $_POST["season"];

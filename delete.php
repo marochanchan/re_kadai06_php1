@@ -1,7 +1,14 @@
 <?php
 
-// funcs.phpを読み込む
+session_start();
+
 require_once("funcs.php");
+
+sschk();
+
+if($_SESSION["kanri_flg"] != 1){
+    exit("権限がありません");
+}
 
 // idを取得
 $id = $_GET["id"];

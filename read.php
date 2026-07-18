@@ -1,19 +1,26 @@
-<html>
-<head>
-<meta charset="utf-8">
-<title>クローゼット一覧</title>
-<link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-
 <?php
+
+session_start();
 
 // funcs.phpを読み込む（DB接続やXSS対策の関数を使用するため）
 require_once("funcs.php");
 
+sschk();
+
 //DB接続
 $pdo = db_conn();
+
+// 登録件数
+$sql = "SELECT COUNT(*) AS total FROM closet_table";
+$stmt = $pdo->query($sql);
+$total = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// お気に入り件数
+$sql = "SELECT COUNT(*) AS favorite_total
+        FROM closet_table
+        WHERE favorite=1";
+$stmt = $pdo->query($sql);
+$favorite_total = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // ----------------------------
 // 検索条件を受け取る
@@ -102,13 +109,83 @@ if($status==false){
 
 ?>
 
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>クローゼット一覧</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="header">
+
+    <div class="header-left">
+        <h2>👗 Re:Closet</h2>
+    </div>
+
+    <div class="header-right">
+
+        <span>
+            <?= h($_SESSION["name"]) ?> さん
+        </span>
+
+        <?php if($_SESSION["kanri_flg"]==1){ ?>
+
+            <span class="admin-badge">
+                管理者
+            </span>
+
+        <?php }else{ ?>
+
+            <span class="user-badge">
+                ユーザー
+            </span>
+
+        <?php } ?>
+
+        <a class="logout-btn" href="logout.php">
+            ログアウト
+        </a>
+
+    </div>
+
+</div>
+
 <h1>クローゼット一覧</h1>
 
-<div style="text-align:center;">
+<div class="summary">
+
+    <div class="summary-card">
+        <h3>登録数</h3>
+        <p><?= $total["total"] ?> 着</p>
+    </div>
+
+    <div class="summary-card">
+        <h3>お気に入り</h3>
+        <p>❤️ <?= $favorite_total["favorite_total"] ?> 着</p>
+    </div>
+
+</div>
+
+<?php if($_SESSION["kanri_flg"]==1){ ?>
+
+<div class="top-buttons">
+
     <a class="page-link" href="post.php">
         ＋ 新しく登録する
     </a>
+
+    <a class="page-link" href="user.php">
+        👤 ユーザー追加
+    </a>
+
 </div>
+
+<?php } ?>
+
+<div class="search-box">
 
 <!-- 絞り込み検索機能、GETで条件をread.phpに送る -->
 <form method="GET" action="read.php">
@@ -148,6 +225,8 @@ if($status==false){
 <input type="submit" value="検索する">
 
 </form>
+
+</div>
 
 <div class="favorite-filter">
 
@@ -255,15 +334,27 @@ while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
 ?>
 
 <!-- カードの表示 -->
-<div class="card">
+<div class="card" id="item<?= $result["id"] ?>">
 
 <!-- お気に入りボタン -->
+<?php if($_SESSION["kanri_flg"]==1){ ?>
+
 <a class="favorite-btn"
-   href="favorite.php?id=<?= $result["id"] ?>">
+href="favorite.php?id=<?= $result["id"] ?>&return=item<?= $result["id"] ?>">
 
 <?= $result["favorite"] ? "❤️" : "🤍" ?>
 
 </a>
+
+<?php }else{ ?>
+
+<div class="favorite-btn disabled">
+
+<?= $result["favorite"] ? "❤️" : "🤍" ?>
+
+</div>
+
+<?php } ?>
 
 <!-- 画像表示 -->
 <?php if(!empty($result["image_name"])): ?>
@@ -285,16 +376,24 @@ while($result = $stmt->fetch(PDO::FETCH_ASSOC)){
 <!-- 編集・削除リンク（行番号で識別） -->
 <div class="card-buttons">
 
-    <a class="edit-btn"
-       href="edit.php?id=<?= $result["id"] ?>">
-        ✏️ 編集
-    </a>
+<?php if($_SESSION["kanri_flg"]==1){ ?>
+
+<a class="edit-btn"
+href="edit.php?id=<?= $result["id"] ?>">
+✏️ 編集
+</a>
+
+<?php } ?>
+
+<?php if($_SESSION["kanri_flg"]==1){ ?>
 
 <a class="delete-btn"
-   href="delete.php?id=<?= $result["id"] ?>"
-   onclick="return confirm('本当に削除しますか？');">
-    🗑️ 削除
+href="delete.php?id=<?= $result["id"] ?>"
+onclick="return confirm('本当に削除しますか？');">
+🗑️ 削除
 </a>
+
+<?php } ?>
 
 </div>
 

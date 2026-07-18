@@ -1,7 +1,14 @@
 <?php
 
-// funcs.phpを読み込む
+session_start();
+
 require_once("funcs.php");
+
+sschk();
+
+if($_SESSION["kanri_flg"] != 1){
+    exit("権限がありません");
+}
 
 // POSTデータを取得
 $id = $_POST["id"];

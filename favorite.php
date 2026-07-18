@@ -1,8 +1,17 @@
 <?php
 
+session_start();
+
 require_once("funcs.php");
 
+sschk();
+
+if($_SESSION["kanri_flg"] != 1){
+    exit("権限がありません");
+}
+
 $id = $_GET["id"];
+$return = $_GET["return"] ?? "";
 
 $pdo = db_conn();
 
@@ -39,7 +48,11 @@ if($status==false){
     sql_error($stmt);
 }
 
-header("Location: read.php");
+if($return != ""){
+    header("Location: read.php#$return");
+}else{
+    header("Location: read.php");
+}
 
 exit();
 

@@ -13,12 +13,10 @@ function db_conn(){
     try{
 
         $pdo = new PDO(
-            // 'mysql:dbname=gs_db_kadai08;charset=utf8mb4;host=localhost',
-            // 'root',
-            // ''
-            'mysql:dbname=********;charset=utf8mb4;host=*********',
-            '*********',
-            '*********'
+            'mysql:dbname=gs_db_kadai08;charset=utf8mb4;host=localhost',
+            'root',
+            ''
+
         );
 
         return $pdo;
@@ -41,6 +39,24 @@ function sql_error($stmt){
 
 }
 
+//SessionCheck
+function sschk(){
+
+    if(
+        !isset($_SESSION["chk_ssid"]) ||
+        $_SESSION["chk_ssid"] != session_id()
+    ){
+
+        exit("LOGIN ERROR");
+
+    }else{
+
+        session_regenerate_id(true);
+        $_SESSION["chk_ssid"] = session_id();
+
+    }
+
+}
 
 //リダイレクト
 function redirect($file_name){

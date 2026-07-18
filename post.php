@@ -1,3 +1,17 @@
+<?php
+
+session_start();
+
+require_once("funcs.php");
+
+sschk();
+
+if($_SESSION["kanri_flg"] != 1){
+    exit("権限がありません");
+}
+
+?>
+
 <html>
 <head>
 <meta charset="utf-8">
